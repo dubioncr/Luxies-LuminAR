@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v7.2.0/dist/aframe-extras.min.js"></script>
+</head>
+<body>
+
+  <a-scene mindar-image="imageTargetSrc: ./target.mind;" vr-mode-ui="enabled: false" renderer="colorManagement: true">
+    
+    <a-assets>
+      <a-asset-item id="saludo" src="./MALEKI_SALUDO1.glb"></a-asset-item>
+      <a-asset-item id="respira" src="./MALEKI_RESPIRA.glb"></a-asset-item>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <a-entity mindar-image-target="targetIndex: 0" id="target">
+      
+      <!-- Modelo de Saludo -->
+      <a-gltf-model 
+        id="model-saludo"
+        src="#saludo"
+        scale="0.2 0.2 0.2"
+        position="0 0 0"
+        rotation="0 0 0"
+        visible="false">
+      </a-gltf-model>
+
+      <!-- Modelo Respira -->
+      <a-gltf-model 
+        id="model-respira"
+        src="#respira"
+        animation-mixer="clip: *; loop: repeat"
+        scale="0.2 0.2 0.2"
+        position="0 0 0"
+        rotation="0 0 0"
+        visible="false">
+      </a-gltf-model>
+
+    </a-entity>
+  </a-scene>
+
+  <script>
+    const target = document.querySelector('#target');
+    const saludo = document.querySelector('#model-saludo');
+    const respira = document.querySelector('#model-respira');
+
+    target.addEventListener("targetFound", () => {
+      // 1. Preparar visibilidad
+      saludo.setAttribute("visible", "true");
+      respira.setAttribute("visible", "false");
+      
+      // 2. Aplicar la animación al saludo para que empiece desde el inicio
+      saludo.setAttribute("animation-mixer", "clip: *; loop: once; clampWhenFinished: true");
+
+      // 3. Cambiar a idle después de 1500ms
+      setTimeout(() => {
+        saludo.setAttribute("visible", "false");
+        respira.setAttribute("visible", "true");
+      }, 800); 
+    });
+
+    target.addEventListener("targetLost", () => {
+      // Limpiar estados al perder el target
+      saludo.setAttribute("visible", "false");
+      respira.setAttribute("visible", "false");
+      saludo.removeAttribute("animation-mixer");
+    });
+  </script>
+</body>
+</html>
